@@ -18,9 +18,16 @@
         android:id="@+id/button1"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="View Map"
-        android:onClick="map"
+        android:text="View Console"
+        android:onClick="console"
         android:layout_gravity="center" />
+     <Button
+        android:id="@+id/button2"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="View Map"
+        android:onClick="map" />
 
     <Button
         android:id="@+id/button2"

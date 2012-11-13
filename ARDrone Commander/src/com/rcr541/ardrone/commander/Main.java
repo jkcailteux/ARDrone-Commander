@@ -23,7 +23,11 @@ public class Main extends Activity {
     	finish();
     }
     public void console(View v){
-    	//Intent intent = new Intent(this.getApplicationContext(), Maps.class);
-        //startActivity(intent);
+    	Intent intent = new Intent(this.getApplicationContext(), Map.class);
+        startActivity(intent);
+    }
+    public void map(View v){
+    	Intent intent = new Intent(this.getApplicationContext(), Map.class);
+        startActivity(intent);
     }
 }
