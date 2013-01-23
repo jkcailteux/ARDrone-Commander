@@ -1,11 +1,13 @@
 package com.rcr541.ardrone.commander;
 
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
@@ -32,4 +34,18 @@ public class Console extends Activity {
     	Intent intent = new Intent(this.getApplicationContext(), Map.class);
         startActivity(intent);
     }
+    //send command to takeoff
+    public void takeoff(View v){
+    	if(((Button) findViewById(R.id.takeoffbutton)).getText()=="Takeoff"){
+    		
+    		((Button) findViewById(R.id.takeoffbutton)).setText("Land");
+    		
+    	} else{
+    		
+    		((Button) findViewById(R.id.takeoffbutton)).setText("Takeoff");
+    	}
+    	
+    	
+    }
+
 }

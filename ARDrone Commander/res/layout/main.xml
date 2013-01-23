@@ -34,7 +34,7 @@
         android:id="@+id/button2"
         android:layout_width="225dp"
         android:layout_height="wrap_content"
-        android:onClick="waypointlist"
+        android:onClick="waypointslist"
         android:layout_gravity="center"
         android:text="Create a Waypoint List" />
 

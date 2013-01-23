@@ -37,48 +37,58 @@
 
                 <Button
                     android:id="@+id/button3"
-                    android:layout_width="35dp"
+                    android:layout_width="45dp"
                     android:layout_height="wrap_content"
-                    android:text="L" />
+                    android:text="↶" />
 
                 <Button
                     android:id="@+id/button4"
-                    android:layout_width="35dp"
+                    android:layout_width="45dp"
                     android:layout_height="wrap_content"
-                    android:text="R" />
+                    android:text="↷" />
             </LinearLayout>
 
             <Button
-                android:id="@+id/button5"
-                android:layout_width="wrap_content"
+                android:id="@+id/takeoffbutton"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:onClick="takeoff"
                 android:text="Takeoff" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginLeft="40dp"
-            android:layout_width="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_width="45dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:orientation="vertical" >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Height" >
+            </TextView>
 
             <Button
                 android:id="@+id/button5"
-                android:layout_width="40dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="+" />
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text="↥" />
 
             <Button
                 android:id="@+id/button6"
-                android:layout_width="40dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="-" />
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text="↧" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
@@ -92,8 +102,8 @@
                     android:id="@+id/button6"
                     android:layout_width="45dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
-                    android:text="L" />
+                    android:layout_marginTop="40dp"
+                    android:text="←" />
             </LinearLayout>
 
             <LinearLayout
@@ -113,14 +123,15 @@
                     android:layout_width="45dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:text="F" />
+                    android:text="↑"
+                     />
 
                 <Button
                     android:id="@+id/button6"
                     android:layout_width="45dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:text="B" />
+                    android:text="↓" />
             </LinearLayout>
 
             <LinearLayout
@@ -132,8 +143,8 @@
                     android:id="@+id/button6"
                     android:layout_width="45dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
-                    android:text="R" />
+                    android:layout_marginTop="40dp"
+                    android:text="→" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
