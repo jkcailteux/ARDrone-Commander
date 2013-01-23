@@ -22,6 +22,14 @@
         </activity>
         <activity android:name=".Map"
             	  android:label="Map"/>
+        <activity android:name=".Console"
+            	  android:label="Console"/>
+        <activity android:name=".MapWaypoints"
+            	  android:label="Create List of Waypoints"/>
+        <activity android:name=".Waypointslist"
+            	  android:label="Waypoints Lists"/>
+        <activity android:name=".Coordlist"
+            	  android:label="List of Coordinates"/>
         <uses-library android:name="com.google.android.maps"/>
     </application>
 	<uses-permission android:name="android.permission.INTERNET"/>

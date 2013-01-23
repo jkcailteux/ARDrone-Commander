@@ -8,33 +8,42 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ARDrone Commander"
+        android:layout_gravity="center"
         android:layout_marginTop="100dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-         android:layout_gravity="center" />
+        android:text="ARDrone Commander"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
-        android:layout_marginTop="40dp"
         android:id="@+id/button1"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:text="View Console"
-        android:onClick="console"
-        android:layout_gravity="center" />
-     <Button
-        android:id="@+id/button2"
-        android:layout_width="150dp"
+        android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="View Map"
-        android:onClick="map" />
+        android:layout_marginTop="40dp"
+        android:onClick="console"
+        android:text="View Console" />
 
     <Button
         android:id="@+id/button2"
-        android:layout_width="150dp"
+        android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Exit"
-        android:onClick="exit" />
+        android:onClick="map"
+        android:text="View Map" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:onClick="waypointlist"
+        android:layout_gravity="center"
+        android:text="Create a Waypoint List" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:onClick="exit"
+        android:text="Exit" />
 
 </LinearLayout>

@@ -20,5 +20,21 @@ public class Globals extends Application {
 	public int getLong(){
 		return longitudeE6;
 	}
+	public void gangnamstyle(){
+		latitudeE6=3752766;
+		longitudeE6=12703064;
+	}
+	public int coordtoE6(int d, int m, int s, char z){
+		int x=d;
+		x+=((m*60+s)/3600);
+		
+		if (z=='N' || z=='E'){
+			return x;
+		}
+		else{
+			return (-1*x);
+		}
+		
+	}
 	
 }

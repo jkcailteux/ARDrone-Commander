@@ -23,11 +23,15 @@ public class Main extends Activity {
     	finish();
     }
     public void console(View v){
-    	Intent intent = new Intent(this.getApplicationContext(), Map.class);
+    	Intent intent = new Intent(this.getApplicationContext(), Console.class);
         startActivity(intent);
     }
     public void map(View v){
     	Intent intent = new Intent(this.getApplicationContext(), Map.class);
+        startActivity(intent);
+    }
+    public void waypointlist(View v){
+    	Intent intent = new Intent(this.getApplicationContext(), Waypointslist.class);
         startActivity(intent);
     }
 }
