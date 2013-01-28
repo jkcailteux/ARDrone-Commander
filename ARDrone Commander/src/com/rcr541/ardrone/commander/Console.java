@@ -68,20 +68,27 @@ public class Console extends Activity {
 		serverStatus = (TextView) findViewById(R.id.server_status);
 
 
-		// CONNECTING TO DRONE
-		try {
-			socket = new Socket(DRONEIP, DRONEPORT);
-			dataOutputStream = new DataOutputStream(socket.getOutputStream());
-			serverStatus.setText("Connected");
-		} catch (UnknownHostException e) {
-			serverStatus.setText("Unknown Host Exception");
-			e.printStackTrace();
-		} catch (IOException e) {
-			serverStatus.setText("IO Exception");
-			e.printStackTrace();			
-		}
+
 
 	}
+	public class ServerThread implements Runnable {
+		 public void run() {
+			try {
+				socket = new Socket(DRONEIP, DRONEPORT);
+				dataOutputStream = new DataOutputStream(socket.getOutputStream());
+				serverStatus.setText("Connected");
+			}catch (UnknownHostException e) {
+				serverStatus.setText("Unknown Host Exception");
+				e.printStackTrace();
+			} catch (IOException e) {
+				serverStatus.setText("IO Exception");
+				e.printStackTrace();			
+			}
+		 
+		 
+		 }
+	}
+	
 
 	/*
 	 * public class ServerThread implements Runnable { public void run() { try {
@@ -169,6 +176,19 @@ public class Console extends Activity {
 		sendcommand(msg_moveright);
 	}
 	public void sendcommand(String command){
+	/*
+		// CONNECTING TO DRONE
+		try {
+			socket = new Socket(DRONEIP, DRONEPORT);
+			dataOutputStream = new DataOutputStream(socket.getOutputStream());
+			serverStatus.setText("Connected");
+		} catch (UnknownHostException e) {
+			serverStatus.setText("Unknown Host Exception");
+			e.printStackTrace();
+		} catch (IOException e) {
+			serverStatus.setText("IO Exception");
+			e.printStackTrace();			
+		}
 		
 		try {
 			dataOutputStream.writeUTF(command);
@@ -180,6 +200,6 @@ public class Console extends Activity {
 			serverStatus.setText("IO Exception");
 			e.printStackTrace();
 		}
-		
+		*/
 	}
 }
