@@ -7,23 +7,26 @@
 
     <VideoView
         android:id="@+id/videoView1"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="350dp"
+        android:layout_height="300dp"
         android:layout_gravity="center"
         android:layout_marginTop="30dp" />
 
     <LinearLayout
+        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="5" >
 
         <LinearLayout
+            android:layout_marginLeft="45dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <TextView
+                android:textSize="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -36,23 +39,26 @@
                 android:orientation="horizontal" >
 
                 <Button
+                    android:textSize="50dp"
                     android:id="@+id/button3"
-                    android:layout_width="45dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:onClick="turnleft"
                     android:text="↶" />
 
-                <Button
+                <Button android:textSize="50dp"
                     android:id="@+id/button4"
-                    android:layout_width="45dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:onClick="turnright"
                     android:text="↷" />
             </LinearLayout>
 
             <Button
+                android:textSize="30dp"
+                android:layout_marginTop="20dp"
                 android:id="@+id/takeoffbutton"
-                android:layout_width="100dp"
+                android:layout_width="145dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:onClick="takeoff"
@@ -60,12 +66,13 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginLeft="25dp"
-            android:layout_width="45dp"
+            android:layout_marginLeft="50dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical" >
             <TextView
+                android:textSize="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -73,26 +80,28 @@
             </TextView>
 
             <Button
+                android:textSize="50dp"
                 android:id="@+id/button5"
-                android:layout_width="50dp"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:onClick="moveup"
                 android:text="↥" />
 
             <Button
+                android:textSize="50dp"
                 android:id="@+id/button6"
-                android:layout_width="50dp"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:gravity="center"
+                android:layout_gravity="center"
                 android:onClick="movedown"
                 android:text="↧" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
@@ -103,10 +112,11 @@
                 android:orientation="vertical" >
 
                 <Button
+                    android:textSize="50dp"
                     android:id="@+id/button6"
-                    android:layout_width="45dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
+                    android:layout_marginTop="70dp"
                     android:onClick="moveleft"
                     android:text="←" />
             </LinearLayout>
@@ -117,6 +127,7 @@
                 android:orientation="vertical" >
 
                 <TextView
+                    android:textSize="30dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -125,7 +136,8 @@
 
                 <Button
                     android:id="@+id/button6"
-                    android:layout_width="45dp"
+                    android:layout_width="70dp"
+                    android:textSize="50dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:onClick="moveforward"
@@ -133,8 +145,9 @@
                      />
 
                 <Button
+                    android:textSize="50dp"
                     android:id="@+id/button6"
-                    android:layout_width="45dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:onClick="moveup"
@@ -147,10 +160,11 @@
                 android:orientation="vertical" >
 
                 <Button
+                    android:textSize="50dp"
                     android:id="@+id/button6"
-                    android:layout_width="45dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
+                    android:layout_marginTop="70dp"
                     android:onClick="moveright"
                     android:text="→" />
             </LinearLayout>
@@ -158,6 +172,7 @@
     </LinearLayout>
 
     <TextView
+        android:layout_marginTop="40dp"
         android:id="@+id/server_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -165,10 +180,12 @@
         android:text="" />
 
     <LinearLayout
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false"
-        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        
         android:orientation="vertical" >
 
         <LinearLayout
@@ -176,6 +193,7 @@
             android:layout_height="wrap_content" >
 
             <Button
+                android:textSize="20dp"
                 android:id="@+id/button2"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
@@ -185,6 +203,7 @@
                 android:text="View Map" />
 
             <Button
+                android:textSize="20dp"
                 android:id="@+id/button2"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"

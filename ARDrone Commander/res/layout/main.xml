@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:onClick="waypointslist"
         android:layout_gravity="center"
-        android:text="Create a Waypoint List" />
+        android:text="Run/Create a Waypoint List" />
 
     <Button
         android:id="@+id/button2"

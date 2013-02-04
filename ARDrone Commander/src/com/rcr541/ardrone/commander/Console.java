@@ -16,6 +16,7 @@ import java.util.Enumeration;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -50,7 +51,6 @@ public class Console extends Activity {
 	DataOutputStream dataOutputStream = null;
 	DataInputStream dataInputStream = null;
 
-	String uri_a = "rtsp://v5.cache1.c.youtube.com/CjYLENy73wIaLQnhycnrJQ8qmRMYESARFEIJbXYtZ29vZ2xlSARSBXdhdGNoYPj_hYjnq6uUTQw=/0/0/0/video.3gp";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -59,17 +59,16 @@ public class Console extends Activity {
 
 		VideoView mVideoView = (VideoView) findViewById(R.id.videoView1);
 		// mVideoView.setVideoURI(Uri.parse("android.resource://" +
-		// getPackageName() +"/"+R.raw.gangnam));
-		// mVideoView.setVideoURI(Uri.parse(uri_a));
-		mVideoView.setMediaController(new MediaController(this));
-		mVideoView.requestFocus();
-		// mVideoView.start();
+		 //getPackageName() +"/"+R.raw.gangnam));
+		//mVideoView.setVideoURI(Uri.parse(uri_a));
+		//mVideoView.setMediaController(new MediaController(this));
+		//mVideoView.requestFocus();
+		//mVideoView.start();
 	
 		serverStatus = (TextView) findViewById(R.id.server_status);
-
-
-
-
+		serverStatus.setText("Not Connected");
+		//ServerThread st=new ServerThread();
+		//st.run();
 	}
 	public class ServerThread implements Runnable {
 		 public void run() {
@@ -114,6 +113,21 @@ public class Console extends Activity {
 	 */
 	@Override
 	protected void onStop() {
+		/*
+		try {
+			socket.close();
+			dataOutputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		*/
+		super.onStop();
+		
+	}
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		/*
 		super.onStop();
 		try {
 			socket.close();
@@ -121,6 +135,7 @@ public class Console extends Activity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 
 	public void exit(View v) {
