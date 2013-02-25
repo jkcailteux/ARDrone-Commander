@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -52,15 +53,24 @@ public class Coordlist extends Activity {
         Button b1 = new Button(this);
         b1.setText(coordstring(1,test_lat, test_long));
         //b1.setOnClickListener(ocl);
-        ((LinearLayout) findViewById(R.id.linearlayout1)).addView(b1);
+        
         //end test
         Coordinate x=new Coordinate(test_lat,test_long);
         x.E6tolat(x.latE6);
         System.out.println(x.lat[0]+ " d "+ x.lat[1]+" m "+ x.lat[2]+" s ");
         
+        ((Button) b1).setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	choosepoint();
+            }
+        });
         
-        
-    }  
+        ((LinearLayout) findViewById(R.id.linearlayout1)).addView(b1);
+    }
+    public void choosepoint(){
+    	Intent intent = new Intent(this.getApplicationContext(), Choosepoint.class);
+        startActivity(intent);
+    }
     public void exit(View v){
     	finish();
     }
