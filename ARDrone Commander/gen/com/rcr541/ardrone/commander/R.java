@@ -140,8 +140,7 @@ containing a value of this type.
         public static final int button6=0x7f04000d;
         public static final int linearlayout1=0x7f040010;
         public static final int map=0x7f040006;
-        public static final int mapview=0x7f040011;
-        public static final int menu_settings=0x7f040012;
+        public static final int menu_settings=0x7f040011;
         public static final int none=0x7f040000;
         public static final int normal=0x7f040001;
         public static final int satellite=0x7f040002;

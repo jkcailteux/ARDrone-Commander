@@ -1,58 +1,136 @@
 package com.rcr541.ardrone.commander;
 
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import java.util.List;
-
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
- 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
-import android.app.Activity;
-import android.content.Intent;
-import android.view.Menu;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-public class Map extends MapActivity {
-	
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+
+public class Map extends FragmentActivity implements LocationListener {
+
+	boolean isGPSEnabled = false;
+	boolean isNetworkEnabled = false;
+
+	boolean canGetLocation = false;
+	Location location;
+	double latitude;
+	double longitude;
+	private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
+	private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
+	protected LocationManager locationManager;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map);
 
-		MapView mapView = (MapView) findViewById(R.id.mapview);
-		mapView.setBuiltInZoomControls(true);
+		locationManager = (LocationManager) this
+				.getSystemService(Context.LOCATION_SERVICE);
 
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		Drawable drawable = this.getResources().getDrawable(R.drawable.ic_launcher);
-		CustomItemizedOverlay itemizedOverlay = new CustomItemizedOverlay(
-				drawable, this);
+		GooglePlayServicesUtil
+				.isGooglePlayServicesAvailable(getApplicationContext());
 
-		GeoPoint point = new GeoPoint(((Globals) this.getApplication()).getLat(), ((Globals) this.getApplication()).getLong());
-		OverlayItem overlayitem = new OverlayItem(point, "Hello",
-				"I'm at "+((Globals) this.getApplication()).getLat()+" "+ ((Globals) this.getApplication()).getLong() );
+		GoogleMap map = ((SupportMapFragment) getSupportFragmentManager()
+				.findFragmentById(R.id.map)).getMap();
 
-		itemizedOverlay.addOverlay(overlayitem);
-		mapOverlays.add(itemizedOverlay);
+		LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
+				.getLongitude());
 
-		MapController mapController = mapView.getController();
-		mapController.animateTo(point);
-		mapController.setZoom(18);
-    
-    }
-	@Override
-	protected boolean isRouteDisplayed() {
-		return false;
+		map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
+				.fromLatLngZoom(ll, (float) 19.5)));
+
 	}
 
-    public void exit(View v){
-    	finish();
-    }
-    
-    
+	public Location getLocation() {
+		try {
+			locationManager = (LocationManager) this
+					.getSystemService(LOCATION_SERVICE);
+
+			// getting GPS status
+			isGPSEnabled = locationManager
+					.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+			// getting network status
+			isNetworkEnabled = locationManager
+					.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+			if (!isGPSEnabled && !isNetworkEnabled) {
+				// no network provider is enabled
+			} else {
+				this.canGetLocation = true;
+				// First get location from Network Provider
+				if (isNetworkEnabled) {
+					locationManager.requestLocationUpdates(
+							LocationManager.NETWORK_PROVIDER,
+							MIN_TIME_BW_UPDATES,
+							MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+					if (locationManager != null) {
+						location = locationManager
+								.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+						if (location != null) {
+							latitude = location.getLatitude();
+							longitude = location.getLongitude();
+						}
+					}
+				}
+				// if GPS Enabled get lat/long using GPS Services
+				if (isGPSEnabled) {
+					if (location == null) {
+						locationManager.requestLocationUpdates(
+								LocationManager.GPS_PROVIDER,
+								MIN_TIME_BW_UPDATES,
+								MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+						;
+						if (locationManager != null) {
+							location = locationManager
+									.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+							if (location != null) {
+								latitude = location.getLatitude();
+								longitude = location.getLongitude();
+							}
+						}
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return location;
+	}
+
+	public void exit(View v) {
+		finish();
+	}
+
+	public void onLocationChanged(Location arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onProviderDisabled(String arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onProviderEnabled(String arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
+		// TODO Auto-generated method stub
+
+	}
+
 }
