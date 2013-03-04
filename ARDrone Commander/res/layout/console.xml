@@ -5,32 +5,33 @@
     android:baselineAligned="false"
     android:orientation="vertical" >
 
-    <VideoView
-        android:id="@+id/videoView1"
-        android:layout_width="425dp"
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="530dp"
         android:layout_height="400dp"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="30dp"
+        class="com.google.android.gms.maps.SupportMapFragment" />
 
     <LinearLayout
-        android:layout_marginTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:orientation="horizontal"
         android:weightSum="5" >
 
         <LinearLayout
-            android:layout_marginLeft="45dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="45dp"
             android:orientation="vertical" >
 
             <TextView
-                android:textSize="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Turn" >
+                android:text="Turn"
+                android:textSize="30dp" >
             </TextView>
 
             <LinearLayout
@@ -39,71 +40,73 @@
                 android:orientation="horizontal" >
 
                 <Button
-                    android:textSize="50dp"
                     android:id="@+id/button3"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:onClick="turnleft"
-                    android:text="↶" />
+                    android:text="↶"
+                    android:textSize="50dp" />
 
-                <Button android:textSize="50dp"
+                <Button
                     android:id="@+id/button4"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:onClick="turnright"
-                    android:text="↷" />
+                    android:text="↷"
+                    android:textSize="50dp" />
             </LinearLayout>
 
             <Button
-                android:textSize="30dp"
-                android:layout_marginTop="20dp"
                 android:id="@+id/takeoffbutton"
                 android:layout_width="145dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:onClick="takeoff"
-                android:text="Takeoff" />
+                android:text="Takeoff"
+                android:textSize="30dp" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginLeft="50dp"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginLeft="50dp"
             android:orientation="vertical" >
+
             <TextView
-                android:textSize="30dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Height" >
+                android:text="Height"
+                android:textSize="30dp" >
             </TextView>
 
             <Button
-                android:textSize="50dp"
                 android:id="@+id/button5"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:layout_gravity="center"
+                android:layout_marginTop="2dp"
                 android:onClick="moveup"
-                android:text="↥" />
+                android:text="↥"
+                android:textSize="50dp" />
 
             <Button
-                android:textSize="50dp"
                 android:id="@+id/button6"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:layout_gravity="center"
+                android:layout_marginTop="2dp"
                 android:onClick="movedown"
-                android:text="↧" />
+                android:text="↧"
+                android:textSize="50dp" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_marginLeft="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
             android:orientation="horizontal" >
 
             <LinearLayout
@@ -112,13 +115,13 @@
                 android:orientation="vertical" >
 
                 <Button
-                    android:textSize="50dp"
                     android:id="@+id/button6"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="70dp"
                     android:onClick="moveleft"
-                    android:text="←" />
+                    android:text="←"
+                    android:textSize="50dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -127,31 +130,30 @@
                 android:orientation="vertical" >
 
                 <TextView
-                    android:textSize="30dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Move" >
+                    android:text="Move"
+                    android:textSize="30dp" >
                 </TextView>
 
                 <Button
                     android:id="@+id/button6"
                     android:layout_width="70dp"
-                    android:textSize="50dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:onClick="moveforward"
                     android:text="↑"
-                     />
+                    android:textSize="50dp" />
 
                 <Button
-                    android:textSize="50dp"
                     android:id="@+id/button6"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:onClick="moveup"
-                    android:text="↓" />
+                    android:text="↓"
+                    android:textSize="50dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -160,32 +162,31 @@
                 android:orientation="vertical" >
 
                 <Button
-                    android:textSize="50dp"
                     android:id="@+id/button6"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="70dp"
                     android:onClick="moveright"
-                    android:text="→" />
+                    android:text="→"
+                    android:textSize="50dp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
     <TextView
-        android:layout_marginTop="40dp"
         android:id="@+id/server_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
         android:gravity="center"
         android:text="" />
 
     <LinearLayout
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:baselineAligned="false"
         android:layout_gravity="bottom"
-        
+        android:layout_marginTop="10dp"
+        android:baselineAligned="false"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -193,24 +194,24 @@
             android:layout_height="wrap_content" >
 
             <Button
-                android:textSize="20dp"
                 android:id="@+id/button2"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1.0"
                 android:onClick="map"
-                android:text="View Map" />
+                android:text="View Map"
+                android:textSize="20dp" />
 
             <Button
-                android:textSize="20dp"
                 android:id="@+id/button2"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1.0"
                 android:onClick="exit"
-                android:text="Exit" />
+                android:text="Exit"
+                android:textSize="20dp" />
         </LinearLayout>
     </LinearLayout>
 
