@@ -1,28 +1,26 @@
 package com.rcr541.ardrone.commander;
 
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
 public class Choosepoint extends FragmentActivity implements LocationListener {
+
+	int point_number;
 
 	// GPS and Map Stuff
 	LatLng ll;
@@ -42,12 +40,16 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.choosepoint);
 
+
+		((TextView) findViewById(R.id.text_pt_num)).setText("Point #"
+				+ getIntent().getExtras().getInt("pt_num", 0));
+
 		GooglePlayServicesUtil
 				.isGooglePlayServicesAvailable(getApplicationContext());
 
 		map = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
-		
+
 		ll = new LatLng(getLocation().getLatitude(), getLocation()
 				.getLongitude());
 
@@ -55,6 +57,7 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 				.fromLatLngZoom(ll, (float) 19.5)));
 
 	}
+
 	public Location getLocation() {
 		try {
 			locationManager = (LocationManager) this
@@ -114,27 +117,60 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 		return location;
 	}
 
+	public void mark(View v) {
+		LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
+				.getLongitude());
+		
+		SharedPreferences pref= getSharedPreferences("com.rcr541.ardrone.commander",
+				Context.MODE_PRIVATE);
+		Editor edit = pref.edit();
+		int size=pref.getInt("size", 0);
+		
+		System.out.println(ll.latitude);
+		System.out.println(ll.longitude);
+		
+		//if new point
+		if(point_number == 0){
+			edit.putInt("size", size+1);
+			edit.putInt(((size+1) + "lat"), (int) (ll.latitude*(1000000)));
+			edit.putInt(((size+1) + "lon"), (int) (ll.longitude*(1000000)));
+		} else {
+			//if changing old point
+			edit.putInt((point_number + "lat"), (int) (ll.latitude*(1000000)));
+			edit.putInt((point_number + "lon"), (int) (ll.longitude*(1000000)));
+		}
+		
+		edit.commit();
+		
+		finish();
+	}
+
 	public void exit(View v) {
 		finish();
 	}
+
 	public void onLocationChanged(Location location) {
-		if(map!=null){
+		if (map != null) {
 			LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
 					.getLongitude());
-			map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
-					.fromLatLngZoom(ll, (float) 19.5)));
+			map.animateCamera(CameraUpdateFactory
+					.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
+							(float) 19.5)));
 		}
 	}
+
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

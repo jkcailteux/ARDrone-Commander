@@ -43,6 +43,9 @@
         <activity
             android:name=".Choosepoint"
             android:label="Choose a point" />
+        <activity
+            android:name=".RunOrCreate"
+            android:label="Run or Create  List" />
 
         <uses-library android:name="com.google.android.maps" />
     </application>

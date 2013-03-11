@@ -26,6 +26,15 @@
     </LinearLayout>
 
     <Button
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center"
+        android:id="@+id/Button01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="addnew"
+        android:text="Add New Point" />
+
+    <Button
         android:id="@+id/button2"
         android:layout_width="225dp"
         android:layout_height="wrap_content"

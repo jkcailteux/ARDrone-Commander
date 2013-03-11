@@ -76,16 +76,18 @@ public class Waypointslist extends Activity {
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		params.setMargins(0, 0, 0, 20);
 
+		/*
 		Button bcreate = new Button(this);
 		bcreate.setText("Create a new list");
 		bcreate.setOnClickListener(ocl_create);
 		bcreate.setLayoutParams(params);
 		((LinearLayout) findViewById(R.id.linearlayout1)).addView(bcreate);
+		*/
 
 		// Populate with Waypointlist buttons here
 		Button b1 = new Button(this);
 		b1.setId(1);// assign ids starting with 1
-		b1.setText("Test Coordinates List");
+		b1.setText("Test List");
 		b1.setOnClickListener(ocl);
 		b1.setOnLongClickListener(ocl_delete);
 		b1.setLayoutParams(params);

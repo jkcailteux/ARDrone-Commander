@@ -31,7 +31,7 @@ public class Main extends Activity {
         startActivity(intent);
     }
     public void waypointslist(View v){
-    	Intent intent = new Intent(this.getApplicationContext(), Waypointslist.class);
+    	Intent intent = new Intent(this.getApplicationContext(), RunOrCreate.class);
         startActivity(intent);
     }
 }
