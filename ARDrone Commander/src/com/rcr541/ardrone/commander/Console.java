@@ -1,8 +1,14 @@
 package com.rcr541.ardrone.commander;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -16,9 +22,11 @@ import com.google.android.gms.maps.model.LatLng;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -29,27 +37,32 @@ import android.widget.TextView;
 public class Console extends FragmentActivity implements LocationListener {
 
 	// Commands to send
-	public static final String msg_takeoff = "MD|takeoff";
-	public static final String msg_land = "MD|land";
-	public static final String msg_turnleft = "MD|turn|left";
-	public static final String msg_turnright = "MD|turn|right";
-	public static final String msg_moveup = "MD|alt|up";
-	public static final String msg_movedown = "MD|alt|down";
-	public static final String msg_moveforward = "MD|move|forward";
-	public static final String msg_moveback = "MD|move|back";
-	public static final String msg_moveleft = "MD|move|left";
-	public static final String msg_moveright = "MD|move|right";
+	public static final String msg_takeoff = "takeoff";
+	public static final String msg_land = "land";
+	public static final String msg_turnleft = "turnleft";
+	public static final String msg_turnright = "turnright";
+	public static final String msg_moveup = "moveup";
+	public static final String msg_movedown = "movedown";
+	public static final String msg_moveforward = "moveforward";
+	public static final String msg_moveback = "moveback";
+	public static final String msg_moveleft = "moveleft";
+	public static final String msg_moveright = "moveright";
 
 	public boolean connected = false;
-	public static String DRONEIP = "192.168.1.1";
-	public static final int DRONEPORT = 5557;
-	private Handler handler = new Handler();
+	public static String RPIP = "192.168.1.2";
+	public static final int RPPORT = 5558;
+	public static final int RPPORTnav = 5559;
 	private TextView serverStatus;
 
-	// Setting up Socket
-	Socket socket = null;
-	DataOutputStream dataOutputStream = null;
-	DataInputStream dataInputStream = null;
+	// Setting up Socket to send cmd
+	BufferedWriter out = null;
+	Socket ss = null;
+	InetAddress piAddr = null;
+
+	// Setting up Socket to get nav
+	BufferedReader in = null;
+	ServerSocket sserver = null;
+	Socket snav = null;
 
 	// GPS and Map Stuff
 	boolean isGPSEnabled = false;
@@ -78,21 +91,40 @@ public class Console extends FragmentActivity implements LocationListener {
 				.getLongitude());
 		map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
 				.fromLatLngZoom(ll, (float) 19.5)));
-		
-		
-		
-		
+
 		serverStatus = (TextView) findViewById(R.id.server_status);
 		serverStatus.setText("Not Connected");
+
+		// connect to sockets
+		cmdAsync ca = new cmdAsync();
+		ca.execute();
+
 	}
 
-	public class ServerThread implements Runnable {
-		public void run() {
+	private class cmdAsync extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(Void... arg0) {
 			try {
-				socket = new Socket(DRONEIP, DRONEPORT);
-				dataOutputStream = new DataOutputStream(
-						socket.getOutputStream());
-				serverStatus.setText("Connected");
+				// connect to the socket for cmd
+				piAddr = InetAddress.getByName(RPIP);
+				ss = new Socket(piAddr, RPPORT);
+				
+				// connect to the socket for navdata
+				sserver = new ServerSocket(RPPORTnav, 100, piAddr);
+				snav = sserver.accept();
+				
+				// get writer to socket
+				out = new BufferedWriter(new OutputStreamWriter(
+						ss.getOutputStream()));	
+
+				// get reader from socket
+				in = new BufferedReader(new InputStreamReader(
+						snav.getInputStream()));
+				
+				// update views
+				((TextView) findViewById(R.id.server_status))
+						.setText("Connected");
+
 			} catch (UnknownHostException e) {
 				serverStatus.setText("Unknown Host Exception");
 				e.printStackTrace();
@@ -100,7 +132,7 @@ public class Console extends FragmentActivity implements LocationListener {
 				serverStatus.setText("IO Exception");
 				e.printStackTrace();
 			}
-
+			return null;
 		}
 	}
 
@@ -164,22 +196,19 @@ public class Console extends FragmentActivity implements LocationListener {
 	}
 
 	@Override
-	protected void onStop() {
-		/*
-		 * try { socket.close(); dataOutputStream.close(); } catch (IOException
-		 * e) { e.printStackTrace(); }
-		 */
-		super.onStop();
-
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		/*
-		 * super.onStop(); try { socket.close(); dataOutputStream.close(); }
-		 * catch (IOException e) { e.printStackTrace(); }
-		 */
+	protected void onPause() {
+		try {
+			ss.close();
+			out.close();
+			snav.close();
+			sserver.close();
+			in.close();			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}	
+		super.onPause();
 	}
 
 	public void exit(View v) {
@@ -193,7 +222,9 @@ public class Console extends FragmentActivity implements LocationListener {
 
 	// send command to takeoff
 	public void takeoff(View v) {
-		if (((Button) findViewById(R.id.takeoffbutton)).getText() == "Takeoff") {
+
+		if (((Button) findViewById(R.id.takeoffbutton)).getText().equals(
+				"Takeoff")) {
 			sendcommand(msg_takeoff);
 			((Button) findViewById(R.id.takeoffbutton)).setText("Land");
 
@@ -235,45 +266,48 @@ public class Console extends FragmentActivity implements LocationListener {
 		sendcommand(msg_moveright);
 	}
 
-	public void sendcommand(String command) {
-		/*
-		 * // CONNECTING TO DRONE try { socket = new Socket(DRONEIP, DRONEPORT);
-		 * dataOutputStream = new DataOutputStream(socket.getOutputStream());
-		 * serverStatus.setText("Connected"); } catch (UnknownHostException e) {
-		 * serverStatus.setText("Unknown Host Exception"); e.printStackTrace();
-		 * } catch (IOException e) { serverStatus.setText("IO Exception");
-		 * e.printStackTrace(); }
-		 * 
-		 * try { dataOutputStream.writeUTF(command);
-		 * serverStatus.setText(command + " sent"); } catch
-		 * (UnknownHostException e) {
-		 * serverStatus.setText("Unknown Host Exception"); e.printStackTrace();
-		 * } catch (IOException e) { serverStatus.setText("IO Exception");
-		 * e.printStackTrace(); }
-		 */
+	public void sendcommand(String s) {
+
+		if (!((TextView) findViewById(R.id.server_status)).getText().equals(
+				"Connected")) {
+			return;
+		}
+		// turns into cmd <cmd>
+		String temp = "cmd " + s;
+
+		System.out.println(temp);
+
+		// write command to socket
+		try {
+			out.write(temp);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public void onLocationChanged(Location arg0) {
-		if(map!=null){
+		if (map != null) {
 			LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
 					.getLongitude());
-			map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
-					.fromLatLngZoom(ll, (float) 19.5)));
+			map.animateCamera(CameraUpdateFactory
+					.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
+							(float) 19.5)));
 		}
 	}
 
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void onProviderEnabled(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
