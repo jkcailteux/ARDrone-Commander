@@ -1,9 +1,7 @@
 package com.rcr541.ardrone.commander;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
@@ -15,9 +13,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class RunOrCreate extends Activity {
 
@@ -32,10 +32,11 @@ public class RunOrCreate extends Activity {
 	}
 
 	public void send(View v) {
-		//create connected socket
-		
-		
-		//send build_list_string() through socket
+		// create connected socket
+		((TextView) findViewById(R.id.textStatus)).setText("Trying to send data");
+		sendAsync sa = new  sendAsync();
+		sa.execute();
+		// send build_list_string() through socket
 	}
 
 	public void create(View v) {
@@ -43,7 +44,8 @@ public class RunOrCreate extends Activity {
 				Waypointslist.class);
 		startActivity(intent);
 	}
-	//turns into list <size> <lat1> <lon1> <lat2> <lon2> ...
+
+	// turns into list <size> <lat1> <lon1> <lat2> <lon2> ...
 	public String build_list_string() {
 		String s = "";
 		SharedPreferences prefs = getSharedPreferences(
@@ -61,44 +63,70 @@ public class RunOrCreate extends Activity {
 		}
 		return s;
 	}
-	
-	private void runTcpServer() {
-		int SERVER_PORT=5558;
-		String ip_dest="192.168.1.2";//should be address of raspbery pi
-		ServerSocket ss = null;
-		InetAddress piAddr = null;
-	    try {
-	    	
-	    	piAddr = InetAddress.getByName(ip_dest);
-	        ss = new ServerSocket(SERVER_PORT, 100, piAddr);
-	        //ss.setSoTimeout(10000);
-	        
-	        //accept connections
-	        Socket s = ss.accept();
-	        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
 
-	        //send a message
-	        String outgoingMsg = build_list_string();
-	        out.write(outgoingMsg);
-	        out.flush();
-	        
-	        //SystemClock.sleep(5000);
-	        s.close();
-	    } catch (InterruptedIOException e) {
-	        //if timeout occurs
-	        e.printStackTrace();
-	    } catch (UnknownHostException e) {
-	         e.printStackTrace();
-	      }catch (IOException e) {
-	        e.printStackTrace();
-	    } finally {
-	        if (ss != null) {
-	            try {
-	                ss.close();
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    }
+	private class sendAsync extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			int SERVER_PORT = 5558;
+			String ip_dest = "192.168.1.2";// should be address of raspberry pi
+			ServerSocket ss = null;
+			InetAddress piAddr = null;
+			try {
+
+				piAddr = InetAddress.getByName(ip_dest);
+				ss = new ServerSocket(SERVER_PORT, 100, piAddr);
+				// ss.setSoTimeout(10000);
+
+				// accept connections
+				Socket s = ss.accept();// blocks here
+				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+						s.getOutputStream()));
+
+				// send a message
+				String outgoingMsg = build_list_string();
+				out.write(outgoingMsg);
+				out.flush();
+
+				// Show confirmation of sent message list
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"List successfully sent", Toast.LENGTH_SHORT);
+				toast.show();
+
+				// SystemClock.sleep(5000);
+				s.close();
+			} catch (InterruptedIOException e) {
+				// if timeout occurs
+				// Show confirmation of sent message list
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Timeout", Toast.LENGTH_SHORT);
+				toast.show();
+				e.printStackTrace();
+			} catch (UnknownHostException e) {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"Unknown Host", Toast.LENGTH_SHORT);
+				toast.show();
+				e.printStackTrace();
+			} catch (IOException e) {
+				Toast toast = Toast.makeText(getApplicationContext(),
+						"IO Exception", Toast.LENGTH_SHORT);
+				toast.show();
+				e.printStackTrace();
+			} finally {
+				if (ss != null) {
+					try {
+						ss.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			return null;
+		}
+		@Override
+		protected void onPostExecute(Void v) {
+			((TextView) findViewById(R.id.textStatus)).setText("");
+		}
+
 	}
 }

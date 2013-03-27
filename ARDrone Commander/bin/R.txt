@@ -24,7 +24,7 @@ int id button5 0x7f04000c
 int id button6 0x7f04000d
 int id linearlayout1 0x7f040010
 int id map 0x7f040007
-int id menu_settings 0x7f040013
+int id menu_settings 0x7f040014
 int id none 0x7f040000
 int id normal 0x7f040001
 int id satellite 0x7f040002
@@ -32,6 +32,7 @@ int id scrollView1 0x7f040004
 int id server_status 0x7f04000e
 int id takeoffbutton 0x7f04000b
 int id terrain 0x7f040003
+int id textStatus 0x7f040013
 int id textView1 0x7f04000f
 int id text_pt_num 0x7f040005
 int layout choosepoint 0x7f030000

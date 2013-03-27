@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -26,13 +27,12 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
+import android.os.*;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Console extends FragmentActivity implements LocationListener {
 
@@ -52,7 +52,6 @@ public class Console extends FragmentActivity implements LocationListener {
 	public static String RPIP = "192.168.1.2";
 	public static final int RPPORT = 5558;
 	public static final int RPPORTnav = 5559;
-	private TextView serverStatus;
 
 	// Setting up Socket to send cmd
 	BufferedWriter out = null;
@@ -63,6 +62,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	BufferedReader in = null;
 	ServerSocket sserver = null;
 	Socket snav = null;
+	Handler handler;
 
 	// GPS and Map Stuff
 	boolean isGPSEnabled = false;
@@ -92,48 +92,63 @@ public class Console extends FragmentActivity implements LocationListener {
 		map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
 				.fromLatLngZoom(ll, (float) 19.5)));
 
-		serverStatus = (TextView) findViewById(R.id.server_status);
-		serverStatus.setText("Not Connected");
+		setServerStatusText("Not Connected");
 
 		// connect to sockets
 		cmdAsync ca = new cmdAsync();
 		ca.execute();
-
 	}
 
 	private class cmdAsync extends AsyncTask<Void, Void, Void> {
+
+		String msg;
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			try {
 				// connect to the socket for cmd
 				piAddr = InetAddress.getByName(RPIP);
 				ss = new Socket(piAddr, RPPORT);
-				
+
 				// connect to the socket for navdata
 				sserver = new ServerSocket(RPPORTnav, 100, piAddr);
 				snav = sserver.accept();
-				
+
 				// get writer to socket
 				out = new BufferedWriter(new OutputStreamWriter(
-						ss.getOutputStream()));	
+						ss.getOutputStream()));
 
 				// get reader from socket
 				in = new BufferedReader(new InputStreamReader(
 						snav.getInputStream()));
-				
-				// update views
-				((TextView) findViewById(R.id.server_status))
-						.setText("Connected");
 
+				// update views
+				msg = "Connected";
+				
+			} catch (InterruptedIOException e) {
+				msg ="Timeout";
+				e.printStackTrace();
 			} catch (UnknownHostException e) {
-				serverStatus.setText("Unknown Host Exception");
+				msg = "Unknown Host Exception";
 				e.printStackTrace();
 			} catch (IOException e) {
-				serverStatus.setText("IO Exception");
+				msg = "IO Exception";
 				e.printStackTrace();
 			}
+
+			super.onPostExecute(null);
 			return null;
 		}
+
+		@Override
+		protected void onPostExecute(Void v) {
+			setServerStatusText(msg);
+		}
+
+	}
+
+	private void setServerStatusText(String s) {
+		((TextView) findViewById(R.id.server_status)).setText(s);
 	}
 
 	public Location getLocation() {
@@ -202,12 +217,12 @@ public class Console extends FragmentActivity implements LocationListener {
 			out.close();
 			snav.close();
 			sserver.close();
-			in.close();			
+			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-		}	
+		}
 		super.onPause();
 	}
 
@@ -298,16 +313,13 @@ public class Console extends FragmentActivity implements LocationListener {
 
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
-
 	}
 
 	public void onProviderEnabled(String arg0) {
 		// TODO Auto-generated method stub
-
 	}
 
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
-
 	}
 }
