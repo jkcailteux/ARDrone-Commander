@@ -35,6 +35,8 @@ public class Coordlist extends Activity {
 		Intent intent = new Intent(this.getApplicationContext(),
 				Choosepoint.class);
 		intent.putExtra("pt_num", point_number);
+		intent.putExtra("lat", (prefs.getInt(point_number + "lat", 0)));
+		intent.putExtra("lon", (prefs.getInt(point_number + "lon", 0)));
 		startActivity(intent);
 	}
 

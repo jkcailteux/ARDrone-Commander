@@ -14,9 +14,13 @@ import android.widget.TextView;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class Choosepoint extends FragmentActivity implements LocationListener {
 
@@ -34,15 +38,17 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 	private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
 	private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 	protected LocationManager locationManager;
+	Marker CurPosm;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.choosepoint);
 
-
+		point_number=getIntent().getExtras().getInt("pt_num", 0);
+		
 		((TextView) findViewById(R.id.text_pt_num)).setText("Point #"
-				+ getIntent().getExtras().getInt("pt_num", 0));
+				+ point_number);
 
 		GooglePlayServicesUtil
 				.isGooglePlayServicesAvailable(getApplicationContext());
@@ -50,11 +56,40 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 		map = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map)).getMap();
 
-		ll = new LatLng(getLocation().getLatitude(), getLocation()
-				.getLongitude());
+		//if existing position, use that, otherwise make new
+		ll = new LatLng(((double)getIntent().getExtras().getInt("lat"))/1000000, ((double)getIntent().getExtras().getInt("lon"))/1000000);
+		System.out.println(ll.latitude + " "+ ll.longitude);
+		
+		if (ll.latitude == 0 || ll.longitude == 0){
+			ll = new LatLng(getLocation().getLatitude(), getLocation()
+					.getLongitude());
+		}
+		
 
 		map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
 				.fromLatLngZoom(ll, (float) 19.5)));
+		
+		 
+		//Marker
+		 CurPosm = map.addMarker(new MarkerOptions()
+		                            .position(ll)
+		                            .title("Current Position")
+		                            .snippet("This is where you are")
+		                            .draggable(true)
+		                            .icon(BitmapDescriptorFactory.defaultMarker()));
+		
+		 //Listener to grab data from marker
+		OnMarkerDragListener mdl = new OnMarkerDragListener(){
+			public void onMarkerDrag(Marker marker){
+				ll=marker.getPosition();
+			}
+			public void onMarkerDragEnd(Marker marker) {
+				ll=marker.getPosition();
+			}
+			public void onMarkerDragStart(Marker marker) {
+			}
+		};
+		map.setOnMarkerDragListener(mdl);
 
 	}
 
@@ -118,9 +153,10 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 	}
 
 	public void mark(View v) {
+		/*
 		LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
 				.getLongitude());
-		
+		*/
 		SharedPreferences pref= getSharedPreferences("com.rcr541.ardrone.commander",
 				Context.MODE_PRIVATE);
 		Editor edit = pref.edit();
@@ -130,7 +166,7 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 		System.out.println(ll.longitude);
 		
 		//if new point
-		if(point_number == 0){
+		if(point_number == size+1){
 			edit.putInt("size", size+1);
 			edit.putInt(((size+1) + "lat"), (int) (ll.latitude*(1000000)));
 			edit.putInt(((size+1) + "lon"), (int) (ll.longitude*(1000000)));
@@ -144,12 +180,16 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 		
 		finish();
 	}
+	
 
 	public void exit(View v) {
 		finish();
 	}
 
 	public void onLocationChanged(Location location) {
+		//currently do not change map if location change
+		
+		/*
 		if (map != null) {
 			LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
 					.getLongitude());
@@ -157,6 +197,7 @@ public class Choosepoint extends FragmentActivity implements LocationListener {
 					.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
 							(float) 19.5)));
 		}
+		*/
 	}
 
 	public void onProviderDisabled(String provider) {

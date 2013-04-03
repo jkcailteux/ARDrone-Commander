@@ -17,8 +17,11 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
 import android.content.Context;
@@ -75,6 +78,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10;
 	private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 	protected LocationManager locationManager;
+	Marker curpos;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -97,6 +101,15 @@ public class Console extends FragmentActivity implements LocationListener {
 		// connect to sockets
 		cmdAsync ca = new cmdAsync();
 		ca.execute();
+		
+		//Marker
+		 curpos = map.addMarker(new MarkerOptions()
+		                            .position(ll)
+		                            .title("Drone")
+		                            .snippet("Position of the Drone")
+		                            .draggable(true)
+		                            .icon(BitmapDescriptorFactory.defaultMarker()));
+		
 	}
 
 	private class cmdAsync extends AsyncTask<Void, Void, Void> {
@@ -308,6 +321,8 @@ public class Console extends FragmentActivity implements LocationListener {
 			map.animateCamera(CameraUpdateFactory
 					.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
 							(float) 19.5)));
+			
+			curpos.setPosition(ll);
 		}
 	}
 
