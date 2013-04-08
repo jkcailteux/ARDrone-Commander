@@ -57,9 +57,9 @@ public class RunOrCreate extends Activity {
 
 		for (int x = 1; x <= size; x++) {
 			s += x + " ";
-			s += prefs.getInt((x + "lat"), 0) + " ";
+			s += (prefs.getInt((x + "lat"), 0)*1000000) + " ";
 			s += x + " ";
-			s += prefs.getInt((x + "lon"), 0) + " ";
+			s += (prefs.getInt((x + "lon"), 0)*1000000) + " ";
 		}
 		return s;
 	}
