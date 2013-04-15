@@ -32,7 +32,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.*;
 import android.support.v4.app.FragmentActivity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +54,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	public static final String msg_moveright = "moveright";
 
 	public boolean connected = false;
-	public static String RPIP = "192.168.1.2";
+	public static String RPIP = "192.168.1.3";
 	public static final int RPPORT = 5558;
 	public static final int RPPORTnav = 5559;
 
@@ -68,6 +70,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	Handler handler;
 
 	// GPS and Map Stuff
+	boolean isConnected = false;
 	boolean isGPSEnabled = false;
 	boolean isNetworkEnabled = false;
 	boolean canGetLocation = false;
@@ -79,6 +82,9 @@ public class Console extends FragmentActivity implements LocationListener {
 	private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 	protected LocationManager locationManager;
 	Marker curpos;
+	
+	//Button Stuff
+	boolean button_down=false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,14 +107,50 @@ public class Console extends FragmentActivity implements LocationListener {
 		// connect to sockets
 		cmdAsync ca = new cmdAsync();
 		ca.execute();
+
+		// Marker
+		curpos = map.addMarker(new MarkerOptions().position(ll).title("Drone")
+				.snippet("Position of the Drone").draggable(true)
+				.icon(BitmapDescriptorFactory.defaultMarker()));
 		
-		//Marker
-		 curpos = map.addMarker(new MarkerOptions()
-		                            .position(ll)
-		                            .title("Drone")
-		                            .snippet("Position of the Drone")
-		                            .draggable(true)
-		                            .icon(BitmapDescriptorFactory.defaultMarker()));
+		//Setup Touch Handlers
+		OnTouchListener otl=new View.OnTouchListener(){
+		    public boolean onTouch(View v, MotionEvent e){
+		    	switch (e.getAction() & MotionEvent.ACTION_MASK) {
+				case (MotionEvent.ACTION_DOWN):
+					button_down=true;
+					switch(v.getId()){
+					case(R.id.bturnleft):sendcommand(msg_turnleft);
+					case(R.id.bturnright):sendcommand(msg_turnright);
+					case(R.id.bmoveup):sendcommand(msg_moveup);
+					case(R.id.bmovedown):sendcommand(msg_movedown);
+					case(R.id.bmoveleft):sendcommand(msg_moveleft);
+					case(R.id.bmoveright):sendcommand(msg_moveright);
+					case(R.id.bmoveforward):sendcommand(msg_moveforward);
+					case(R.id.bmoveback):sendcommand(msg_moveback);
+					}
+					System.out.println("helllllooooooo");
+					return true;
+				case (MotionEvent.ACTION_UP):
+					System.out.println("byeeeeeeeee");
+					button_down=false;
+					return true;
+				}
+				return false;
+		    	
+		    }
+		};
+		
+		//Attached ontouch to buttons
+		//Land and takeoff do not have one
+		((Button)findViewById(R.id.bturnleft)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bturnright)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bmoveup)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bmovedown)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bmoveleft)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bmoveright)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bmoveforward)).setOnTouchListener(otl);
+		((Button)findViewById(R.id.bmoveback)).setOnTouchListener(otl);
 		
 	}
 
@@ -124,28 +166,33 @@ public class Console extends FragmentActivity implements LocationListener {
 				ss = new Socket(piAddr, RPPORT);
 
 				// connect to the socket for navdata
-				sserver = new ServerSocket(RPPORTnav, 100, piAddr);
-				snav = sserver.accept();
+				// sserver = new ServerSocket(RPPORTnav, 100, piAddr);
+				// snav = sserver.accept();
 
 				// get writer to socket
 				out = new BufferedWriter(new OutputStreamWriter(
 						ss.getOutputStream()));
 
 				// get reader from socket
-				in = new BufferedReader(new InputStreamReader(
-						snav.getInputStream()));
+				// in = new BufferedReader(new InputStreamReader(
+				// snav.getInputStream()));
+				String temp = "Connected!!!";
+				ss.getOutputStream().write(temp.getBytes());
 
 				// update views
 				msg = "Connected";
-				
+				isConnected = true;
 			} catch (InterruptedIOException e) {
-				msg ="Timeout";
+				isConnected = false;
+				msg = "Timeout\n Need to Reconnect";
 				e.printStackTrace();
 			} catch (UnknownHostException e) {
-				msg = "Unknown Host Exception";
+				isConnected = false;
+				msg = "Unknown Host Exception\n Need to Reconnect";
 				e.printStackTrace();
 			} catch (IOException e) {
-				msg = "IO Exception";
+				isConnected = false;
+				msg = "IO Exception \n Need to Reconnect";
 				e.printStackTrace();
 			}
 
@@ -251,68 +298,64 @@ public class Console extends FragmentActivity implements LocationListener {
 	// send command to takeoff
 	public void takeoff(View v) {
 
-		if (((Button) findViewById(R.id.takeoffbutton)).getText().equals(
-				"Takeoff")) {
+		if (((Button) findViewById(R.id.btakeoff)).getText().equals("Takeoff")) {
 			sendcommand(msg_takeoff);
-			((Button) findViewById(R.id.takeoffbutton)).setText("Land");
+			((Button) findViewById(R.id.btakeoff)).setText("Land");
 
 		} else {
 			sendcommand(msg_land);
-			((Button) findViewById(R.id.takeoffbutton)).setText("Takeoff");
+			((Button) findViewById(R.id.btakeoff)).setText("Takeoff");
 		}
 	}
 
-	public void turnleft(View v) {
-		sendcommand(msg_turnleft);
-	}
 
-	public void turnright(View v) {
-		sendcommand(msg_turnright);
-	}
 
-	public void moveup(View v) {
-		sendcommand(msg_moveup);
+	/*
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+		case (MotionEvent.ACTION_DOWN):
+			button_down=true;
+			System.out.println("helllllooooooo");
+			return true;
+		case (MotionEvent.ACTION_UP):
+			System.out.println("byeeeeeeeee");
+			message="";
+			button_down=false;
+			return true;
+		}
+		return false;
 	}
-
-	public void movedown(View v) {
-		sendcommand(msg_movedown);
-	}
-
-	public void moveforward(View v) {
-		sendcommand(msg_moveforward);
-	}
-
-	public void moveback(View v) {
-		sendcommand(msg_moveback);
-	}
-
-	public void moveleft(View v) {
-		sendcommand(msg_moveleft);
-	}
-
-	public void moveright(View v) {
-		sendcommand(msg_moveright);
-	}
+	*/
 
 	public void sendcommand(String s) {
-
-		if (!((TextView) findViewById(R.id.server_status)).getText().equals(
-				"Connected")) {
+		if (!isConnected) {
 			return;
 		}
 		// turns into cmd <cmd>
 		String temp = "cmd " + s;
-
-		System.out.println(temp);
-
-		// write command to socket
-		try {
-			out.write(temp);
-		} catch (IOException e) {
-			e.printStackTrace();
+		while(button_down){
+			System.out.println(temp);
+			// write command to socket
+			try {
+				ss.getOutputStream().write(temp.getBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+			//sleep to prevent massive packet transfer
+			try {
+				  Thread.sleep(100);
+				} catch (InterruptedException ie) {
+				    //Handle exception
+				}
 		}
+		
 
 	}
+	
+	
+	
 
 	public void onLocationChanged(Location arg0) {
 		if (map != null) {
@@ -321,7 +364,7 @@ public class Console extends FragmentActivity implements LocationListener {
 			map.animateCamera(CameraUpdateFactory
 					.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
 							(float) 19.5)));
-			
+
 			curpos.setPosition(ll);
 		}
 	}

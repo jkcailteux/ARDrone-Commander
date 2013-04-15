@@ -69,7 +69,7 @@ public class RunOrCreate extends Activity {
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			int SERVER_PORT = 5558;
-			String ip_dest = "192.168.1.2";// should be address of raspberry pi
+			String ip_dest = "192.168.1.3";// should be address of raspberry pi
 			ServerSocket ss = null;
 			InetAddress piAddr = null;
 			try {
