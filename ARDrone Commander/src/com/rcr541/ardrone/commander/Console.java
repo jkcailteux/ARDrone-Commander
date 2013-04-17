@@ -2,16 +2,28 @@ package com.rcr541.ardrone.commander;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,22 +34,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.*;
-import android.support.v4.app.FragmentActivity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class Console extends FragmentActivity implements LocationListener {
 
@@ -54,13 +50,13 @@ public class Console extends FragmentActivity implements LocationListener {
 	public static final String msg_moveright = "moveright";
 
 	public boolean connected = false;
-	public static String RPIP = "192.168.1.3";
+	public static String RPIP = "192.168.1.5";
 	public static final int RPPORT = 5558;
 	public static final int RPPORTnav = 5559;
 
 	// Setting up Socket to send cmd
 	BufferedWriter out = null;
-	Socket ss = null;
+	DatagramSocket ss = null;
 	InetAddress piAddr = null;
 
 	// Setting up Socket to get nav
@@ -83,8 +79,9 @@ public class Console extends FragmentActivity implements LocationListener {
 	protected LocationManager locationManager;
 	Marker curpos;
 	
-	//Button Stuff
-	boolean button_down=false;
+	
+	// Button Stuff
+	boolean button_down = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -105,56 +102,82 @@ public class Console extends FragmentActivity implements LocationListener {
 		setServerStatusText("Not Connected");
 
 		// connect to sockets
-		cmdAsync ca = new cmdAsync();
-		ca.execute();
+		setupAsync sa = new setupAsync();
+		sa.execute();
 
+		
 		// Marker
 		curpos = map.addMarker(new MarkerOptions().position(ll).title("Drone")
 				.snippet("Position of the Drone").draggable(true)
 				.icon(BitmapDescriptorFactory.defaultMarker()));
-		
-		//Setup Touch Handlers
-		OnTouchListener otl=new View.OnTouchListener(){
-		    public boolean onTouch(View v, MotionEvent e){
-		    	switch (e.getAction() & MotionEvent.ACTION_MASK) {
+
+		// Setup Touch Handlers
+		OnTouchListener otl = new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent e) {
+				switch (e.getAction() & MotionEvent.ACTION_MASK) {
 				case (MotionEvent.ACTION_DOWN):
-					button_down=true;
-					switch(v.getId()){
-					case(R.id.bturnleft):sendcommand(msg_turnleft);
-					case(R.id.bturnright):sendcommand(msg_turnright);
-					case(R.id.bmoveup):sendcommand(msg_moveup);
-					case(R.id.bmovedown):sendcommand(msg_movedown);
-					case(R.id.bmoveleft):sendcommand(msg_moveleft);
-					case(R.id.bmoveright):sendcommand(msg_moveright);
-					case(R.id.bmoveforward):sendcommand(msg_moveforward);
-					case(R.id.bmoveback):sendcommand(msg_moveback);
+					String msg="";
+				
+					cmdAsync ca= new cmdAsync();
+					button_down = true;
+					
+					if(v.getId()==R.id.btakeoff){
+						if (((Button) findViewById(R.id.btakeoff)).getText().equals("Takeoff")) {
+							msg=msg_takeoff;
+							((Button) findViewById(R.id.btakeoff)).setText("Land");
+							ca.execute(msg);
+							return true;
+						} else {
+							msg=msg_land;
+							((Button) findViewById(R.id.btakeoff)).setText("Takeoff");
+							ca.execute(msg);
+							return true;
+						}
 					}
-					System.out.println("helllllooooooo");
+					else if(v.getId()==R.id.bturnleft){
+						msg=msg_turnleft;}
+					else if(v.getId()==R.id.bturnright){
+						msg=msg_turnright;}
+					else if(v.getId()==R.id.bmoveup){
+						msg=msg_moveup;}
+					else if(v.getId()==R.id.bmovedown){
+						msg=msg_movedown;}
+					else if(v.getId()==R.id.bmoveleft){
+						msg=msg_moveleft;}
+					else if(v.getId()==R.id.bmoveright){
+						msg=msg_moveright;}
+					else if(v.getId()==R.id.bmoveforward){
+						msg=msg_moveforward;}
+					else if(v.getId()==R.id.bmoveback){
+						msg=msg_moveback;}
+					
+					ca.execute(msg);
 					return true;
 				case (MotionEvent.ACTION_UP):
-					System.out.println("byeeeeeeeee");
-					button_down=false;
+					System.out.println("bye");
+					button_down = false;
 					return true;
 				}
 				return false;
-		    	
-		    }
+
+			}
 		};
-		
-		//Attached ontouch to buttons
-		//Land and takeoff do not have one
-		((Button)findViewById(R.id.bturnleft)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bturnright)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bmoveup)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bmovedown)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bmoveleft)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bmoveright)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bmoveforward)).setOnTouchListener(otl);
-		((Button)findViewById(R.id.bmoveback)).setOnTouchListener(otl);
-		
+
+		// Attached ontouch to buttons
+		((Button) findViewById(R.id.btakeoff)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bturnright)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bturnleft)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bturnright)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bmoveup)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bmovedown)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bmoveleft)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bmoveright)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bmoveforward)).setOnTouchListener(otl);
+		((Button) findViewById(R.id.bmoveback)).setOnTouchListener(otl);
+
 	}
 
-	private class cmdAsync extends AsyncTask<Void, Void, Void> {
+	private class setupAsync extends AsyncTask<Void, Void, Void> {
 
 		String msg;
 
@@ -163,39 +186,24 @@ public class Console extends FragmentActivity implements LocationListener {
 			try {
 				// connect to the socket for cmd
 				piAddr = InetAddress.getByName(RPIP);
-				ss = new Socket(piAddr, RPPORT);
-
-				// connect to the socket for navdata
-				// sserver = new ServerSocket(RPPORTnav, 100, piAddr);
-				// snav = sserver.accept();
-
-				// get writer to socket
-				out = new BufferedWriter(new OutputStreamWriter(
-						ss.getOutputStream()));
-
-				// get reader from socket
-				// in = new BufferedReader(new InputStreamReader(
-				// snav.getInputStream()));
-				String temp = "Connected!!!";
-				ss.getOutputStream().write(temp.getBytes());
+				ss = new DatagramSocket();
 
 				// update views
 				msg = "Connected";
 				isConnected = true;
-			} catch (InterruptedIOException e) {
-				isConnected = false;
-				msg = "Timeout\n Need to Reconnect";
-				e.printStackTrace();
+			
+				DatagramPacket p= new DatagramPacket(msg.getBytes(),msg.length(),piAddr, RPPORT);
+				ss.send(p);
+				
 			} catch (UnknownHostException e) {
 				isConnected = false;
 				msg = "Unknown Host Exception\n Need to Reconnect";
 				e.printStackTrace();
 			} catch (IOException e) {
 				isConnected = false;
-				msg = "IO Exception \n Need to Reconnect";
+				msg = "IO Exception/Socket Exception \n Need to Reconnect";
 				e.printStackTrace();
 			}
-
 			super.onPostExecute(null);
 			return null;
 		}
@@ -205,6 +213,40 @@ public class Console extends FragmentActivity implements LocationListener {
 			setServerStatusText(msg);
 		}
 
+	}
+	
+	private class cmdAsync extends AsyncTask<String, Void, Void> {
+		@Override
+		protected Void doInBackground(String ... msg) {
+			if (!isConnected) {
+				return null;
+			}
+			// turns into cmd <cmd>
+			String temp = "cmd " + msg[0];
+			while (button_down) {
+				System.out.println(temp);
+				// write command to socket
+				try {
+					DatagramPacket p= new DatagramPacket(temp.getBytes(),temp.length(),piAddr, RPPORT);
+					ss.send(p);
+				} catch (IOException e) {
+					System.out.println("Failed to send packet");
+					e.printStackTrace();
+					return null;
+				}
+				// sleep to prevent massive packet transfer		
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException ie) {
+					// Handle exception
+				}
+			}
+			super.onPostExecute(null);
+			return null;
+		}
+		@Override
+		protected void onPostExecute(Void v) {
+		}
 	}
 
 	private void setServerStatusText(String s) {
@@ -285,6 +327,15 @@ public class Console extends FragmentActivity implements LocationListener {
 		}
 		super.onPause();
 	}
+	public void takeoff(){}
+	public void turnleft(){}
+	public void turnright(){}
+	public void moveup(){}
+	public void movedown(){}
+	public void moveleft(){}
+	public void moveforward(){}
+	public void moveback(){}
+	public void moveright(){}
 
 	public void exit(View v) {
 		finish();
@@ -295,67 +346,38 @@ public class Console extends FragmentActivity implements LocationListener {
 		startActivity(intent);
 	}
 
+	/*
 	// send command to takeoff
 	public void takeoff(View v) {
 
 		if (((Button) findViewById(R.id.btakeoff)).getText().equals("Takeoff")) {
-			sendcommand(msg_takeoff);
+			sendcommand2(msg_takeoff);
 			((Button) findViewById(R.id.btakeoff)).setText("Land");
-
 		} else {
-			sendcommand(msg_land);
+			sendcommand2(msg_land);
 			((Button) findViewById(R.id.btakeoff)).setText("Takeoff");
 		}
 	}
-
-
-
-	/*
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		switch (event.getAction() & MotionEvent.ACTION_MASK) {
-		case (MotionEvent.ACTION_DOWN):
-			button_down=true;
-			System.out.println("helllllooooooo");
-			return true;
-		case (MotionEvent.ACTION_UP):
-			System.out.println("byeeeeeeeee");
-			message="";
-			button_down=false;
-			return true;
-		}
-		return false;
-	}
 	*/
 
-	public void sendcommand(String s) {
+	public void sendcommand2(String s) {
 		if (!isConnected) {
 			return;
 		}
 		// turns into cmd <cmd>
 		String temp = "cmd " + s;
-		while(button_down){
-			System.out.println(temp);
-			// write command to socket
-			try {
-				ss.getOutputStream().write(temp.getBytes());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-			//sleep to prevent massive packet transfer
-			try {
-				  Thread.sleep(100);
-				} catch (InterruptedException ie) {
-				    //Handle exception
-				}
+		System.out.println(temp);
+		// write command to socket
+		try {
+			DatagramPacket p= new DatagramPacket(temp.getBytes(),temp.length(),piAddr, RPPORT);
+			ss.send(p);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
 		}
-		
 
 	}
-	
-	
-	
+
 
 	public void onLocationChanged(Location arg0) {
 		if (map != null) {
