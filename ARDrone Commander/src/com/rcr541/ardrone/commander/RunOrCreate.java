@@ -34,8 +34,12 @@ public class RunOrCreate extends Activity {
 	public void send(View v) {
 		// create connected socket
 		((TextView) findViewById(R.id.textStatus)).setText("Trying to send data");
+		
+		System.out.println(build_list_string());
+		/*
 		sendAsync sa = new  sendAsync();
 		sa.execute();
+		*/
 		// send build_list_string() through socket
 	}
 
@@ -53,13 +57,11 @@ public class RunOrCreate extends Activity {
 
 		s += "list ";
 		int size = prefs.getInt("size", 0);
-		s += " " + size + " ";
+		s += size + " ";
 
 		for (int x = 1; x <= size; x++) {
-			s += x + " ";
-			s += (prefs.getInt((x + "lat"), 0)*1000000) + " ";
-			s += x + " ";
-			s += (prefs.getInt((x + "lon"), 0)*1000000) + " ";
+			s += (float) (prefs.getInt((x + "lat"), 0)/1000000.0) + " ";
+			s += (float) (prefs.getInt((x + "lon"), 0)/1000000.0) + " ";
 		}
 		return s;
 	}
