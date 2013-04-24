@@ -172,9 +172,6 @@ public class Console extends FragmentActivity implements LocationListener {
 				piAddr = InetAddress.getByName(RPIP);
 				ss = new Socket(piAddr, RPPORT);
 
-				// connect to the socket for navdata
-				// sserver = new ServerSocket(RPPORTnav, 100, piAddr);
-				// snav = sserver.accept();
 
 				// get writer to socket
 				out = new BufferedWriter(new OutputStreamWriter(

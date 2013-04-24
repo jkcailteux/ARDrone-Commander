@@ -1,11 +1,8 @@
 package com.rcr541.ardrone.commander;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -21,6 +18,7 @@ import android.widget.Toast;
 
 public class RunOrCreate extends Activity {
 
+	boolean sent_success=false;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,15 +30,21 @@ public class RunOrCreate extends Activity {
 	}
 
 	public void send(View v) {
-		// create connected socket
-		((TextView) findViewById(R.id.textStatus)).setText("Trying to send data");
-		
+		Toast toast = Toast.makeText(getApplicationContext(),
+				"Trying to send data", Toast.LENGTH_SHORT);
+		toast.show();
+
 		System.out.println(build_list_string());
-		/*
-		sendAsync sa = new  sendAsync();
+
+		sendAsync sa = new sendAsync();
 		sa.execute();
-		*/
-		// send build_list_string() through socket
+		if(sent_success){
+			// Show confirmation of sent message list
+			Toast toast1 = Toast.makeText(getApplicationContext(),
+					"List successfully sent", Toast.LENGTH_SHORT);
+			toast1.show();
+			sent_success=false;
+		}
 	}
 
 	public void create(View v) {
@@ -60,8 +64,8 @@ public class RunOrCreate extends Activity {
 		s += size + " ";
 
 		for (int x = 1; x <= size; x++) {
-			s += (float) (prefs.getInt((x + "lat"), 0)/1000000.0) + " ";
-			s += (float) (prefs.getInt((x + "lon"), 0)/1000000.0) + " ";
+			s += (float) (prefs.getInt((x + "lat"), 0) / 1000000.0) + " ";
+			s += (float) (prefs.getInt((x + "lon"), 0) / 1000000.0) + " ";
 		}
 		return s;
 	}
@@ -72,30 +76,19 @@ public class RunOrCreate extends Activity {
 		protected Void doInBackground(Void... arg0) {
 			int SERVER_PORT = 5558;
 			String ip_dest = "192.168.1.5";// should be address of raspberry pi
-			ServerSocket ss = null;
+			Socket s = null;
 			InetAddress piAddr = null;
 			try {
 
 				piAddr = InetAddress.getByName(ip_dest);
-				ss = new ServerSocket(SERVER_PORT, 100, piAddr);
+				s = new Socket(piAddr, SERVER_PORT);
 				// ss.setSoTimeout(10000);
-
-				// accept connections
-				Socket s = ss.accept();// blocks here
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-						s.getOutputStream()));
 
 				// send a message
 				String outgoingMsg = build_list_string();
-				out.write(outgoingMsg);
-				out.flush();
-
-				// Show confirmation of sent message list
-				Toast toast = Toast.makeText(getApplicationContext(),
-						"List successfully sent", Toast.LENGTH_SHORT);
-				toast.show();
-
-				// SystemClock.sleep(5000);
+				s.getOutputStream().write(outgoingMsg.getBytes());
+				
+				sent_success=true;
 				s.close();
 			} catch (InterruptedIOException e) {
 				// if timeout occurs
@@ -115,9 +108,9 @@ public class RunOrCreate extends Activity {
 				toast.show();
 				e.printStackTrace();
 			} finally {
-				if (ss != null) {
+				if (s != null) {
 					try {
-						ss.close();
+						s.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -125,6 +118,7 @@ public class RunOrCreate extends Activity {
 			}
 			return null;
 		}
+
 		@Override
 		protected void onPostExecute(Void v) {
 			((TextView) findViewById(R.id.textStatus)).setText("");
