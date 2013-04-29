@@ -132,8 +132,8 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int Button01=0x7f040015;
-        public static final int TextView01=0x7f040016;
+        public static final int Button01=0x7f040016;
+        public static final int TextView01=0x7f040017;
         public static final int bmoveback=0x7f040010;
         public static final int bmovedown=0x7f04000d;
         public static final int bmoveforward=0x7f04000f;
@@ -145,17 +145,18 @@ containing a value of this type.
         public static final int bturnright=0x7f04000a;
         public static final int button1=0x7f040006;
         public static final int button2=0x7f040008;
-        public static final int linearlayout1=0x7f040014;
+        public static final int linearlayout1=0x7f040015;
         public static final int map=0x7f040007;
-        public static final int menu_settings=0x7f040018;
+        public static final int menu_settings=0x7f040019;
+        public static final int nav_status=0x7f040013;
         public static final int none=0x7f040000;
         public static final int normal=0x7f040001;
         public static final int satellite=0x7f040002;
         public static final int scrollView1=0x7f040004;
         public static final int server_status=0x7f040012;
         public static final int terrain=0x7f040003;
-        public static final int textStatus=0x7f040017;
-        public static final int textView1=0x7f040013;
+        public static final int textStatus=0x7f040018;
+        public static final int textView1=0x7f040014;
         public static final int text_pt_num=0x7f040005;
     }
     public static final class layout {

@@ -177,9 +177,15 @@
         android:id="@+id/server_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="15dp"
         android:gravity="center"
         android:text="" />
+
+    <TextView
+        android:id="@+id/nav_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" />
 
     <LinearLayout
         android:layout_width="match_parent"

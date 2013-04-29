@@ -3,12 +3,16 @@ package com.rcr541.ardrone.commander;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.content.Context;
 import android.content.Intent;
@@ -78,6 +82,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 	protected LocationManager locationManager;
 	Marker curpos;
+	Timer navtimer;
 
 	// Button Stuff
 	boolean button_down = false;
@@ -98,7 +103,8 @@ public class Console extends FragmentActivity implements LocationListener {
 		map.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition
 				.fromLatLngZoom(ll, (float) 19.5)));
 
-		setServerStatusText("Not Connected");
+		setServerStatusText("Not Connected for commands");
+		setNAVStatusText("Not Connected for NAV data");
 
 		// connect to sockets
 		cmdAsync ca = new cmdAsync();
@@ -159,6 +165,13 @@ public class Console extends FragmentActivity implements LocationListener {
 		((Button) findViewById(R.id.bmoveforward)).setOnTouchListener(otl);
 		((Button) findViewById(R.id.bmoveback)).setOnTouchListener(otl);
 
+		// Setup navtimer
+		gpsAsync ga = new gpsAsync();
+		ga.execute();
+
+		navtimer = new Timer();
+		navTask nt = new navTask();
+		navtimer.schedule(nt, 1000);
 	}
 
 	private class cmdAsync extends AsyncTask<Void, Void, Void> {
@@ -172,7 +185,6 @@ public class Console extends FragmentActivity implements LocationListener {
 				piAddr = InetAddress.getByName(RPIP);
 				ss = new Socket(piAddr, RPPORT);
 
-
 				// get writer to socket
 				out = new BufferedWriter(new OutputStreamWriter(
 						ss.getOutputStream()));
@@ -184,19 +196,19 @@ public class Console extends FragmentActivity implements LocationListener {
 				ss.getOutputStream().write(temp.getBytes());
 
 				// update views
-				msg = "Connected";
+				msg = "Connected for sending commands";
 				isConnected = true;
 			} catch (InterruptedIOException e) {
 				isConnected = false;
-				msg = "Timeout\n Need to Reconnect";
+				msg = "Timeout Need to Reconnect";
 				e.printStackTrace();
 			} catch (UnknownHostException e) {
 				isConnected = false;
-				msg = "Unknown Host Exception\n Need to Reconnect";
+				msg = "Unknown Host Exception Need to Reconnect";
 				e.printStackTrace();
 			} catch (IOException e) {
 				isConnected = false;
-				msg = "IO Exception \n Need to Reconnect";
+				msg = "IO Exception Need to Reconnect";
 				e.printStackTrace();
 			}
 
@@ -211,8 +223,80 @@ public class Console extends FragmentActivity implements LocationListener {
 
 	}
 
+	private class gpsAsync extends AsyncTask<Void, Void, Void> {
+
+		String msg;
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			try {
+				// connect to the socket for cmd
+				piAddr = InetAddress.getByName(RPIP);
+				ss = new Socket(piAddr, RPPORTnav);
+
+				// get writer to socket
+				in = new BufferedReader(new InputStreamReader(
+						ss.getInputStream()));
+
+				// update views
+				msg = "Recieving NAV data";
+				isConnected = true;
+			} catch (InterruptedIOException e) {
+				isConnected = false;
+				msg = "Timeout Need to Reconnect";
+				e.printStackTrace();
+			} catch (UnknownHostException e) {
+				isConnected = false;
+				msg = "Unknown Host Exception Need to Reconnect";
+				e.printStackTrace();
+			} catch (IOException e) {
+				isConnected = false;
+				msg = "IO Exception Need to Reconnect";
+				e.printStackTrace();
+			}
+
+			super.onPostExecute(null);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void v) {
+			setNAVStatusText(msg);
+		}
+
+	}
+
+	class navTask extends TimerTask {
+		@Override
+		public void run() {
+			try {
+				String temp = in.readLine();
+				ByteBuffer bf = ByteBuffer.allocate(8192);
+				Double lat = Double.parseDouble(temp);
+				temp = in.readLine();
+				Double lon = Double.parseDouble(temp);
+				System.out.println(lat + " " + lon);
+				LatLng ll = new LatLng(lat, lon);
+				map.animateCamera(CameraUpdateFactory
+						.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
+								(float) 19.5)));
+				curpos.setPosition(ll);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
 	private void setServerStatusText(String s) {
 		((TextView) findViewById(R.id.server_status)).setText(s);
+	}
+
+	private void setNAVStatusText(String s) {
+		((TextView) findViewById(R.id.nav_status)).setText(s);
 	}
 
 	public Location getLocation() {
