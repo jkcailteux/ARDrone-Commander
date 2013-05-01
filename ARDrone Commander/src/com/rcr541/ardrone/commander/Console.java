@@ -173,7 +173,7 @@ public class Console extends FragmentActivity implements LocationListener {
 		//start gps timer
 		gpstimer = new Timer();
 		gpsTask nt = new gpsTask();
-		gpstimer.schedule(nt, 1000);
+		gpstimer.scheduleAtFixedRate(nt, 0, 500);
 	}
 
 	private class cmdAsync extends AsyncTask<Void, Void, Void> {
@@ -270,20 +270,28 @@ public class Console extends FragmentActivity implements LocationListener {
 
 	class gpsTask extends TimerTask {
 		@Override
-		public void run() {
+		public void run() { 
 			try {
 				String temp = in.readLine();
-				System.out.println(temp);
-				// ByteBuffer bf = ByteBuffer.allocate(8192);
-				//Double lat = Double.parseDouble(temp);
 				temp = in.readLine();
-				System.out.println(temp);
-				//Double lon = Double.parseDouble(temp);
-				//LatLng ll = new LatLng(lat, lon);
-				//setLocation(ll);
+				String[] tokens = temp.split(" ");
+				System.out.println(tokens[0]);
+				System.out.println(tokens[1]);
+				
+				Double lat = Double.parseDouble(tokens[0]);
+				Double lon = Double.parseDouble(tokens[1]);				
+				
+				LatLng ll = new LatLng(lat, lon);
+				setLocationAsync sla = new setLocationAsync();
+				sla.execute(ll);
+
+				/**/
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (NullPointerException e) {
+				e.printStackTrace();
+			} catch (NumberFormatException e){
 				e.printStackTrace();
 			}
 
@@ -296,6 +304,12 @@ public class Console extends FragmentActivity implements LocationListener {
 
 	private void setgpsStatusText(String s) {
 		((TextView) findViewById(R.id.nav_status)).setText(s);
+	}
+	
+	private void setgpsStatusText(double lat, double lon) {
+		String temp  =(String) ((TextView) findViewById(R.id.nav_status)).getText();
+		temp = "GPS | Lat: "+ lat + " Lon: "+ lon;
+		((TextView) findViewById(R.id.nav_status)).setText(temp);
 	}
 
 	public Location getLocation() {
@@ -438,6 +452,22 @@ public class Console extends FragmentActivity implements LocationListener {
 		protected void onPostExecute(Void v) {
 		}
 	}
+	
+	private class setLocationAsync extends AsyncTask<LatLng, Void, Void> {
+		LatLng ll;
+		@Override
+		protected Void doInBackground(LatLng... arg) {
+			ll=arg[0];
+			super.onPostExecute(null);
+			return null;
+		}
+		protected void onPostExecute(Void v) {
+		    setLocation(ll);
+		    setgpsStatusText(ll.latitude,ll.longitude);
+		}
+	}
+	
+	
 	public void setLocation(LatLng ll){
 		map.animateCamera(CameraUpdateFactory
 				.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
@@ -447,6 +477,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	}
 
 	public void onLocationChanged(Location arg0) {
+		/*
 		if (map != null) {
 			LatLng ll = new LatLng(getLocation().getLatitude(), getLocation()
 					.getLongitude());
@@ -456,6 +487,7 @@ public class Console extends FragmentActivity implements LocationListener {
 
 			curpos.setPosition(ll);
 		}
+		*/
 	}
 
 	public void estop(View v) {
