@@ -10,7 +10,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -489,20 +488,13 @@ public class Console extends FragmentActivity implements LocationListener {
 		}
 		*/
 	}
-
 	public void estop(View v) {
 		button_down = false;
 	}
-
 	public void onProviderDisabled(String arg0) {
-		// TODO Auto-generated method stub
 	}
-
 	public void onProviderEnabled(String arg0) {
-		// TODO Auto-generated method stub
 	}
-
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-		// TODO Auto-generated method stub
 	}
 }
