@@ -56,7 +56,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	public boolean connected = false;
 	public static String RPIP = "192.168.1.5";
 	public static final int RPPORT = 5558;
-	public static final int RPPORTnav = 5559;
+	public static final int RPPORTgps = 5559;
 
 	// Setting up Socket to send cmd
 	BufferedWriter out = null;
@@ -66,7 +66,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	// Setting up Socket to get nav
 	BufferedReader in = null;
 	ServerSocket sserver = null;
-	Socket snav = null;
+	Socket sgps = null;
 	Handler handler;
 
 	// GPS and Map Stuff
@@ -82,7 +82,7 @@ public class Console extends FragmentActivity implements LocationListener {
 	private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
 	protected LocationManager locationManager;
 	Marker curpos;
-	Timer navtimer;
+	Timer gpstimer;
 
 	// Button Stuff
 	boolean button_down = false;
@@ -104,11 +104,16 @@ public class Console extends FragmentActivity implements LocationListener {
 				.fromLatLngZoom(ll, (float) 19.5)));
 
 		setServerStatusText("Not Connected for commands");
-		setNAVStatusText("Not Connected for NAV data");
+		setgpsStatusText("Not Connected for gps data");
 
 		// connect to sockets
 		cmdAsync ca = new cmdAsync();
 		ca.execute();
+		
+		// Setup navtimer
+		gpsAsync ga = new gpsAsync();
+		ga.execute();
+
 
 		// Marker
 		curpos = map.addMarker(new MarkerOptions().position(ll).title("Drone")
@@ -165,13 +170,10 @@ public class Console extends FragmentActivity implements LocationListener {
 		((Button) findViewById(R.id.bmoveforward)).setOnTouchListener(otl);
 		((Button) findViewById(R.id.bmoveback)).setOnTouchListener(otl);
 
-		// Setup navtimer
-		gpsAsync ga = new gpsAsync();
-		ga.execute();
-
-		navtimer = new Timer();
-		navTask nt = new navTask();
-		navtimer.schedule(nt, 1000);
+		//start gps timer
+		gpstimer = new Timer();
+		gpsTask nt = new gpsTask();
+		gpstimer.schedule(nt, 1000);
 	}
 
 	private class cmdAsync extends AsyncTask<Void, Void, Void> {
@@ -232,14 +234,14 @@ public class Console extends FragmentActivity implements LocationListener {
 			try {
 				// connect to the socket for cmd
 				piAddr = InetAddress.getByName(RPIP);
-				ss = new Socket(piAddr, RPPORTnav);
+				sgps = new Socket(piAddr, RPPORTgps);
 
 				// get writer to socket
 				in = new BufferedReader(new InputStreamReader(
-						ss.getInputStream()));
+						sgps.getInputStream()));
 
 				// update views
-				msg = "Recieving NAV data";
+				msg = "Recieving gps data";
 				isConnected = true;
 			} catch (InterruptedIOException e) {
 				isConnected = false;
@@ -261,27 +263,24 @@ public class Console extends FragmentActivity implements LocationListener {
 
 		@Override
 		protected void onPostExecute(Void v) {
-			setNAVStatusText(msg);
+			setgpsStatusText(msg);
 		}
 
 	}
 
-	class navTask extends TimerTask {
+	class gpsTask extends TimerTask {
 		@Override
 		public void run() {
 			try {
 				String temp = in.readLine();
-				ByteBuffer bf = ByteBuffer.allocate(8192);
-				Double lat = Double.parseDouble(temp);
+				System.out.println(temp);
+				// ByteBuffer bf = ByteBuffer.allocate(8192);
+				//Double lat = Double.parseDouble(temp);
 				temp = in.readLine();
-				Double lon = Double.parseDouble(temp);
-				System.out.println(lat + " " + lon);
-				LatLng ll = new LatLng(lat, lon);
-				map.animateCamera(CameraUpdateFactory
-						.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
-								(float) 19.5)));
-				curpos.setPosition(ll);
-
+				System.out.println(temp);
+				//Double lon = Double.parseDouble(temp);
+				//LatLng ll = new LatLng(lat, lon);
+				//setLocation(ll);
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (NullPointerException e) {
@@ -295,7 +294,7 @@ public class Console extends FragmentActivity implements LocationListener {
 		((TextView) findViewById(R.id.server_status)).setText(s);
 	}
 
-	private void setNAVStatusText(String s) {
+	private void setgpsStatusText(String s) {
 		((TextView) findViewById(R.id.nav_status)).setText(s);
 	}
 
@@ -364,7 +363,7 @@ public class Console extends FragmentActivity implements LocationListener {
 			sendcommand("land");
 			ss.close();
 			out.close();
-			snav.close();
+			sgps.close();
 			sserver.close();
 			in.close();
 		} catch (IOException e) {
@@ -438,6 +437,13 @@ public class Console extends FragmentActivity implements LocationListener {
 		@Override
 		protected void onPostExecute(Void v) {
 		}
+	}
+	public void setLocation(LatLng ll){
+		map.animateCamera(CameraUpdateFactory
+				.newCameraPosition(CameraPosition.fromLatLngZoom(ll,
+						(float) 19.5)));
+
+		curpos.setPosition(ll);
 	}
 
 	public void onLocationChanged(Location arg0) {
